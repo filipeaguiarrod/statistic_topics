@@ -1,36 +1,30 @@
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 # Two-Sample Permuation p-value test
 
 class permut_two_sample_p_test:
 
   """
   Non-parametric - We are not assuming any underlying distribution.
-
   Because you have the two samples you will perform and permutation test , 
   and assess the hypothesis that for example: "the forces from Frog B and Frog C come from the same distribution."
-
   1 - Ho - Define the null hypothesis, example the distribution scores in rj are the same as sp
-
   2 - Define test statistics that will be performed, example: np.mean(rj_scores)-np.mean(sp_scores)
-
   3 - Many times of simulating data assuming the null hypothesis is true. For one-sample bootstraping and for two-sample permuting data
-
   4 - Compute test statistics for simulated data sets.
-
   5 - p value - % of times that observed test statistics are inside simulated test statistics array.   Less p-values higher statistical difference between
   arrays
-
   ### Args
-
   data_1, data_2 - datas to test
-
   func - test statistics, to create null hypothesis, example np.mean(rj_scores)-np.mean(sp_scores)
-
   size - 1000 by standard. How many times the simulated test statistics will be made. 
   
   """
 
   def __init__(self, data_1, data_2, func, size=1000, plot = True):
-
+        
     self.data_1 = data_1
     self.data_2 = data_2
     self.func = func
@@ -92,31 +86,20 @@ class bs_one_sample_p_test:
 
   """
   Non-parametric - We are not assuming any underlying distribution.
-
   It will be used bootstraping once that we just have one of samples, so here we can just test the summary statistics, for example mean, median and etc...
   At the end we could not say that they come from same distribution for example.
-
   Replicate it's a summary statistics for some bootstraped array.
-
   1 - Ho - Define the null hypothesis, example the mean scores in rj are the same as sp
-
   2 - Define test statistics that will be performed, example: np.mean(rj_scores)-np.mean(sp_scores)
-
   3 - Many times of simulating data assuming the null hypothesis is true. For one-sample bootstraping and for two-sample permuting data
-
   4 - Compute test statistics for simulated data sets.
-
   5 - p value - % of times that observed test statistics are inside simulated test statistics array.   Less p-values higher statistical difference between
   arrays
-
   ### Args
-
   data_1 - should be and array, observed array values of frog B 
   
   data_2 - should be an unique value, for example mean of frog C forces
-
   func - test statistics, to create null hypothesis
-
   size - how many times the simulated test statistics will be made.
   
   """
@@ -171,7 +154,85 @@ class bs_one_sample_p_test:
 
     return print('p = ', p_value)
   
+    
+    
+    
+#Function Boostraping One-Sample P value
   
+class bs_one_sample_p_test:
+
+  """
+  Non-parametric - We are not assuming any underlying distribution.
+  We will use bootstrap so here we can just test the summary statistics, for example mean, median and etc...
+  At the end we could not say that they come from same distribution for example.
+  Replicate it's a summary statistics for some bootstraped array.
+  1 - Ho - Define the null hypothesis, example the mean scores in rj are the same as sp
+  2 - Define test statistics that will be performed, example: np.mean(rj_scores)-np.mean(sp_scores)
+  3 - Many times of simulating data assuming the null hypothesis is true. For one-sample bootstraping and for two-sample permuting data
+  4 - Compute test statistics for simulated data sets.
+  5 - p value - % of times that observed test statistics are inside simulated test statistics array.   Less p-values higher statistical difference between
+  arrays
+  ### Args
+  data_1 - should be and array, observed array values of frog B 
+  value - should be an unique value and a summary statistics, for example mean of frog C forces
+  size - how many times the simulated test statistics will be made.
+  
+  """
+
+  def __init__(self,data,value,func=np.mean,size=10000,plot=True):
+
+    self.data = data
+    self.value = value
+    self.func = func
+    self.size = size
+    self.plot = plot
+    self.overall_mean = self.func(np.append(data,value))
+
+
+  def translate_array(self):
+      
+    # Shifiting arrays data_1 and data_2 to represent overall mean
+    translated_data_array = self.data - np.mean(self.data) + self.value # Fixing the drift in mean
+    
+    return translated_data_array
+
+
+  def bootstrap_replicate_1d(self):
+
+    """Generate bootstrap replicate of 1D data."""
+
+    bs_sample = np.random.choice(self.translate_array(), len(self.translate_array()))
+    
+    return self.func(bs_sample)
+
+
+  def draw_bs_reps(self):
+    """Draw array of bootstrap replicates."""
+
+    # Initialize array of replicates: bs_replicates
+    bs_replicates = np.empty(self.size)
+
+    # Generate replicates
+    for i in range(self.size):
+        bs_replicates[i] = self.bootstrap_replicate_1d()
+
+    return bs_replicates
+
+
+  def p_value(self):
+
+    bs_replicates = self.draw_bs_reps()
+
+    p_value = np.sum(bs_replicates >= np.mean(self.data)) / self.size
+
+    if self.plot == True:
+      _ = sns.histplot(bs_replicates)
+      _= plt.axvline(np.mean(self.data), color='red', linestyle='dashed', linewidth=1)
+      plt.show()
+
+    return print('p = ', p_value)
+    
+    
   
 #Function Boostraping Two-Sample P value
   
@@ -179,31 +240,20 @@ class bs_two_sample_p_test:
 
   """
   Non-parametric - We are not assuming any underlying distribution.
-
   We will use bootstrap so here we can just test the summary statistics, for example mean, median and etc...
   At the end we could not say that they come from same distribution for example.
-
   Replicate it's a summary statistics for some bootstraped array.
-
   1 - Ho - Define the null hypothesis, example the mean scores in rj are the same as sp
-
   2 - Define test statistics that will be performed, example: np.mean(rj_scores)-np.mean(sp_scores)
-
   3 - Many times of simulating data assuming the null hypothesis is true. For one-sample bootstraping and for two-sample permuting data
-
   4 - Compute test statistics for simulated data sets.
-
   5 - p value - % of times that observed test statistics are inside simulated test statistics array.   Less p-values higher statistical difference between
   arrays
-
   ### Args
-
   data_1 - should be and array, observed array values of frog B 
   
   data_2 - should be an unique value, for example mean of frog C forces
-
   func - test statistics, to create null hypothesis
-
   size - how many times the simulated test statistics will be made.
   
   """
@@ -268,5 +318,4 @@ class bs_two_sample_p_test:
       plt.show()
 
     return print('p = ', p_value)
-  
-  
+
