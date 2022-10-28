@@ -33,6 +33,20 @@ class permut_two_sample_p_test:
     self.empirical_diff_means = self.func(self.data_1, self.data_2)
 
   #def ecdf(self):
+  
+  '''
+  To include in future, functions to be used in func
+  
+  Function to A/B test
+  
+  def diff_frac(data_a,data_b):
+  
+    frac_a = np.sum(data_a) / len(data_a)
+    frac_b = np.sum(data_b)/ len(data_b)
+    
+    return frac_b-frac_a
+  
+  '''
     
 
   def permutation_sample(self):
